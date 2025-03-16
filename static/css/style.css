@@ -1,0 +1,202 @@
+body {
+    padding-top: 50px;
+    
+}
+.navbar {
+    background-color: rgb(72, 98, 140);
+    color: white;
+}
+.panel-heading {
+    background-color: #f1f3f4 !important;
+    color: gray !important;
+    font-weight: bold;
+}
+
+/* cabeçalho */
+header {
+    height: 50px;
+    background-color: rgb(72, 98, 140);
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+}
+
+.navbar-header {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+
+
+/* logo */
+.navbar-brand {
+    position: absolute;
+    left: 20px;
+    margin-top: -35px;
+
+}
+
+.navbar-brand img {
+    height: 50px !important; 
+    width: auto;
+    max-width: 200px; 
+}
+
+/* faixa cinza */
+.faixa-cinza {
+    background-color:  #f1f3f4;
+    text-align: left;
+    padding: 10px 20px;
+    margin-top: 11px;
+}
+
+.faixa-cinza h3 {
+    margin: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto; 
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+
+/* remover bordas do panel e elementos */
+.panel, .panel-default {
+    border: none !important;
+    box-shadow: none !important;
+    display: flex;
+    
+}
+
+
+.panel-body {
+    border: none !important;
+    padding: 15px 0 !important;
+    
+}
+
+/* formulário */
+.form-inline {
+    display: flex;
+    gap: 25px;
+    margin-top: -125px;
+   
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    
+}
+
+.form-group label {
+    margin-bottom: 3px;
+    
+}
+
+.input-group {
+    width: auto;
+}
+
+/* largura dos campos */
+#acao {
+    width: 400px;
+}
+
+#data_prevista {
+    width:400px;
+}
+
+#investimento {
+    width: 400px;
+}
+
+/* posição dos botões */
+#limpar, #adicionar {
+    margin-left: auto;
+    align-self: center;
+}
+
+
+/*  tabela */
+
+.display{
+   padding: 15px 5px;
+}
+
+
+#tabela {
+    border: 1px solid #ddd !important;
+    margin-top: -50px; 
+    width: 1550px;
+}
+#tabela thead {
+    border-bottom: 2px solid #ddd;
+}
+
+#tabela th, #tabela td {
+    border-right: 1px solid #ddd !important; 
+    border-left: 1px solid #ddd !important;
+}
+
+#tabela th {
+    background-color: #fff !important;
+    padding: 12px 10px !important;
+    border-bottom: 2px solid #ddd !important;
+}
+
+#tabela td {
+    padding: 10px !important;
+    border-bottom: 1px solid #ddd !important;
+}
+
+#tabela tbody tr {
+    background-color: #f4f4f4 !important;
+}
+
+#tabela tbody tr:nth-child(odd) {
+    background-color: #eaeaea !important;
+}
+
+/* alinhamento dos botões */
+#limpar, #adicionar {
+    margin-top: 25px;
+    height: 34px;
+}
+
+#espaco-cinza {
+    background-color: #f1f3f4;
+    width: 100%;
+    transition: height 0.3s ease-in-out; 
+    margin-top: 20px; 
+}
+
+
+/* rodape */
+footer {
+    background-color: rgb(72, 98, 140);
+    color: #fff;
+    padding: 20px 30px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+footer .fa-arrow-up {
+    cursor: pointer;
+}
