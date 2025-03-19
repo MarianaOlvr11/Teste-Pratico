@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from database import get_db_connection, create_table
+import mysql.connector 
 
 app = Flask(__name__)
 CORS(app)
@@ -16,53 +17,135 @@ def home():
 # cadastro
 @app.route("/api/cadastrar", methods=["POST"])
 def cadastrar():
-    data = request.json # dados serão em json
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO marketing (acao, data_prevista, investimento) VALUES (%s, %s, %s)",
-                   (data["acao"], data["data_prevista"], data["investimento"]))
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "Ação cadastrada com sucesso!"})
+    data = request.json
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Obter código_acao usando with para garantir fechamento do cursor
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT codigo_acao FROM tipo_acao WHERE nome_acao = %s", (data["acao"],))
+            tipo_acao = cursor.fetchone()
+            
+            if not tipo_acao:
+                return jsonify({"error": "Tipo de ação inválido"}), 400
+
+        # Novo cursor para a operação de inserção
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO acao (codigo_acao, investimento, data_prevista, data_cadastro)
+                VALUES (%s, %s, %s, CURDATE())
+            """, (tipo_acao[0], data["investimento"], data["data_prevista"]))
+            conn.commit()
+            
+        return jsonify({"message": "Ação cadastrada com sucesso!"}), 201
+
+    except mysql.connector.Error as err:
+        if conn:
+            conn.rollback()
+        return jsonify({"error": str(err)}), 500
+    finally:
+        if conn:
+            conn.close()
+            
+@app.route("/api/tipos-acao", methods=["GET"])
+def listar_tipos_acao():
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute("SELECT nome_acao FROM tipo_acao")
+            result = cursor.fetchall()
+            return jsonify([tipo['nome_acao'] for tipo in result])
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        if conn:
+            conn.close()
 
 #registros
 @app.route("/api/listar", methods=["GET"])
 def listar():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM marketing")
-    result = cursor.fetchall()
-    conn.close()
-    return jsonify(result)
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT a.id, t.nome_acao as acao, a.investimento, 
+                    a.data_prevista, a.data_cadastro 
+                FROM acao a
+                JOIN tipo_acao t ON a.codigo_acao = t.codigo_acao
+            """)
+            result = cursor.fetchall()
+            return jsonify(result)
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        if conn:
+            conn.close()
 
 # rota para listar um único item baseado no ID
 @app.route("/api/listar/<int:id>", methods=["GET"])
 def listar_um(id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM marketing WHERE id=%s", (id,))
-    item = cursor.fetchone()
-    conn.close()
-    return jsonify(item)
+    conn = None
+    try:
+        conn = get_db_connection()
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute("""
+                SELECT a.id, t.nome_acao as acao, a.investimento, 
+                       a.data_prevista, a.data_cadastro 
+                FROM acao a
+                JOIN tipo_acao t ON a.codigo_acao = t.codigo_acao
+                WHERE a.id = %s
+            """, (id,))
+            item = cursor.fetchone()
+            return jsonify(item)
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        if conn:
+            conn.close()
 
 # rota para editar
 @app.route("/api/editar/<int:id>", methods=["PUT"])
 def editar(id):
     data = request.json
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE marketing SET acao=%s, data_prevista=%s, investimento=%s WHERE id=%s",
-                   (data["acao"], data["data_prevista"], data["investimento"], id))
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "Ação atualizada!"})
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Obter código_acao
+        cursor.execute("SELECT codigo_acao FROM tipo_acao WHERE nome_acao = %s", (data["acao"],))
+        tipo_acao = cursor.fetchone()
+        
+        if not tipo_acao:
+            return jsonify({"error": "Tipo de ação inválido"}), 400
+        
+        cursor.execute("""
+            UPDATE acao 
+            SET codigo_acao = %s, investimento = %s, data_prevista = %s 
+            WHERE id = %s
+        """, (tipo_acao[0], data["investimento"], data["data_prevista"], id))
+        
+        conn.commit()  # Garantir commit
+        return jsonify({"message": "Ação atualizada!"})
+    
+    except mysql.connector.Error as err:
+        if conn:
+            conn.rollback()
+        return jsonify({"error": str(err)}), 500
+    finally:
+        if conn:
+            conn.close()
 
 # excluir
 @app.route("/api/excluir/<int:id>", methods=["DELETE"])
 def excluir(id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM marketing WHERE id=%s", (id,))
+    cursor.execute("DELETE FROM acao WHERE id=%s", (id,))
     conn.commit()
     conn.close()
     return jsonify({"message": "Ação excluída!"})

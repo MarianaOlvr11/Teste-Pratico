@@ -2,6 +2,11 @@ body {
     padding-top: 50px;
     
 }
+
+header, footer {
+    width: 100%;
+}
+
 .navbar {
     background-color: rgb(72, 98, 140);
     color: white;
@@ -108,16 +113,8 @@ header {
 }
 
 /* largura dos campos */
-#acao {
-    width: 400px;
-}
-
-#data_prevista {
-    width:400px;
-}
-
-#investimento {
-    width: 400px;
+#acao, #data_prevista, #investimento {
+    width: 350px;
 }
 
 /* posição dos botões */
@@ -137,7 +134,8 @@ header {
 #tabela {
     border: 1px solid #ddd !important;
     margin-top: -50px; 
-    width: 1550px;
+    width: 1600px !important;
+    overflow-x: auto;
 }
 #tabela thead {
     border-bottom: 2px solid #ddd;
@@ -169,8 +167,9 @@ header {
 
 /* alinhamento dos botões */
 #limpar, #adicionar {
-    margin-top: 25px;
+    margin-top: 23px;
     height: 34px;
+    width: 200px;
 }
 
 #espaco-cinza {
@@ -200,3 +199,8 @@ footer {
 footer .fa-arrow-up {
     cursor: pointer;
 }
+
+
+
+
+
